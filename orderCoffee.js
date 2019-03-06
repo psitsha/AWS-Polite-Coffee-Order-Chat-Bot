@@ -48,10 +48,12 @@ function validateCoffeeOrder(coffeeType, coffeeSize) {
   }
 
   if (coffeeType && coffeeSize) {
-    //Latte and cappuccino can be normal/regular or large
+    //Latte, cappuccino, mocha and macchiato can be normal/regular or large
     if (
       (coffeeType.toLowerCase() === "cappuccino" ||
-        coffeeType.toLowerCase() === "latte") &&
+        coffeeType.toLowerCase() === "latte" ||
+        coffeeType.toLowerCase() === "mocha" ||
+        coffeeType.toLowerCase() === "macchiato") &&
       !(
         coffeeSize.toLowerCase() === "normal" ||
         coffeeSize.toLowerCase() === "regular" ||
@@ -80,16 +82,32 @@ function validateCoffeeOrder(coffeeType, coffeeSize) {
       );
     }
 
-    //Americano is always normal/regular
+    //Americano and black is always normal/regular
     if (
       coffeeType.toLowerCase() === "americano" &&
-      coffeeSize.toLowerCase() !== "normal" &&
-      coffeeSize.toLowerCase() !== "regular"
+      !(
+        coffeeSize.toLowerCase() === "normal" ||
+        coffeeSize.toLowerCase() === "regular"
+      )
     ) {
       return buildValidationResult(
         false,
         "size",
-        `We do not have ${coffeeType} in that size. Normal is the available sizes for that drink.`
+        `We do not have ${coffeeType} in that size. ${coffeeType} is only available in Normal/Regular sizes.`
+      );
+    }
+
+    if (
+      coffeeType.toLowerCase() === "black" &&
+      !(
+        coffeeSize.toLowerCase() === "normal" ||
+        coffeeSize.toLowerCase() === "regular"
+      )
+    ) {
+      return buildValidationResult(
+        false,
+        "size",
+        `We do not have ${coffeeType} in that size. ${coffeeType} is only available in Normal/Regular sizes.`
       );
     }
   }
@@ -116,9 +134,15 @@ module.exports = function(intentRequest, callback) {
           intentRequest.sessionAttributes,
           intentRequest.currentIntent.name,
           slots,
-          validationResult.violatedSlot
+          validationResult.violatedSlot,
+          validationResult.message
         )
       );
+    }
+
+    //If size is not defined then set it as regular
+    if (coffeeSize == null) {
+      intentRequest.currentIntent.slots.size = "regular";
     }
 
     callback(

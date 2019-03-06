@@ -1,6 +1,7 @@
 "use strict";
+//taking care of the lambda
 
-const orderCoffee = require("./orderCoffee");
+const orderCoffee = require("./orderCoffee"); //module taking care of CoffeeOrder intent
 
 module.exports = function(intentRequest, callback) {
   console.log(
