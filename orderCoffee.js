@@ -1,6 +1,7 @@
 "use strict";
 
 const lexResponses = require("./lexResponses");
+const databaseManager = require("./databaseManager");
 
 const types = [
   "latte",
@@ -115,6 +116,31 @@ function validateCoffeeOrder(coffeeType, coffeeSize) {
   return buildValidationResult(true, null, null);
 }
 
+//return of an object that will return fullfilment state and message
+function buildFulfilmentResult(fullfilmentState, messageContent) {
+  return {
+    fullfilmentState,
+    message: { contentType: "PlainText", content: messageContent }
+  };
+}
+
+function fullfilOrder(coffeeType, coffeeSize) {
+  console.log("fulfilOrder " + coffeeSize + " " + coffeeType);
+
+  return databaseManager
+    .saveOrderToDatabase(coffeeType, coffeeSize)
+    .then(item => {
+      console.log(item.orderId);
+
+      return buildFulfilmentResult(
+        "Fulfilled",
+        `Thank you! Your orderid ${
+          item.orderId
+        } has been placedand will be ready for pickup in the bar`
+      );
+    });
+}
+
 module.exports = function(intentRequest, callback) {
   let coffeeType = intentRequest.currentIntent.slots.coffee;
   let coffeeSize = intentRequest.currentIntent.slots.size;
@@ -122,7 +148,7 @@ module.exports = function(intentRequest, callback) {
 
   const source = intentRequest.invocationSource;
 
-  //dialogCodeHook for validation of input not fullfillment
+  //DialogCodeHook for validation of input not fullfillment
   if (source === "DialogCodeHook") {
     const slots = intentRequest.currentIntent.slots;
     const validationResult = validateCoffeeOrder(coffeeType, coffeeSize);
@@ -152,5 +178,28 @@ module.exports = function(intentRequest, callback) {
       )
     );
     return;
+  }
+
+  //FulfilmentCodeHook fulfills the order on user confirmation
+  if (source === "FulfillmentCodeHook") {
+    console.log("FulfillmentCodeHook");
+
+    return fullfilOrder(coffeeType, coffeeSize).then(fullfiledOrder => {
+      callback(
+        lexResponses.close(
+          intentRequest.sessionAttributes,
+          fullfiledOrder.fullfilmentState,
+          fullfiledOrder.message
+        )
+      );
+      return;
+    });
+
+    callback(
+      lexResponses.close(intentRequest.sessionAttributes, "Fulfilled", {
+        contentType: "PlainText",
+        content: "Order was placed"
+      })
+    );
   }
 };
