@@ -2,12 +2,13 @@
 
 const lexResponses = require("../lexResponses");
 const databaseManager = require("../databaseManager");
+const _ = require("lodash");
 
 const types = [
   "latte",
   "americano",
   "cappuccino",
-  "expresso",
+  "espresso",
   "mocha",
   "macchiato",
   "black"
@@ -76,9 +77,9 @@ function validateCoffeeOrder(coffeeType, coffeeSize) {
       );
     }
 
-    //Expresso can be single or double
+    //Espresso can be single or double
     if (
-      coffeeType.toLowerCase() === "expresso" &&
+      coffeeType.toLowerCase() === "espresso" &&
       !(
         coffeeSize.toLowerCase() === "single" ||
         coffeeSize.toLowerCase() === "double"
@@ -133,19 +134,21 @@ function findUserFavorite(userId) {
     );
   });
 }
-
+//if user did not specify slot in the intent
+//e.g. i would like to order a drink
 module.exports = function(intentRequest) {
   let coffeeType = intentRequest.currentIntent.slots.coffee;
   let coffeeSize = intentRequest.currentIntent.slots.size;
   let userId = intentRequest.userId;
   const slots = intentRequest.currentIntent.slots;
 
+  // if first time user
   if (coffeeType === null && coffeeSize === null) {
     return findUserFavorite(userId)
       .then(item => {
         slots.size = item.size;
         slots.coffee = item.coffee;
-        //Ask the user if he will like to order this item
+        //Ask the user if he will like to order this item (Confirm Intent Response)
         return lexResponses.confirmIntent(
           intentRequest.sessionAttributes,
           intentRequest.currentIntent.name,

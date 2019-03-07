@@ -2,6 +2,7 @@
 //taking care of the lambda
 
 const orderCoffee = require("./orderCoffeeBot/orderCoffee"); //module taking care of CoffeeOrder intent
+//const greetUser = require("./greetUser");
 
 module.exports = function(intentRequest) {
   //inputing an event and not a callback anymore
