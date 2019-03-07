@@ -1,9 +1,10 @@
 "use strict";
 //taking care of the lambda
 
-const orderCoffee = require("./orderCoffee"); //module taking care of CoffeeOrder intent
+const orderCoffee = require("./orderCoffeeBot/orderCoffee"); //module taking care of CoffeeOrder intent
 
-module.exports = function(intentRequest, callback) {
+module.exports = function(intentRequest) {
+  //inputing an event and not a callback anymore
   console.log(
     `dispatch userId=${intentRequest.userId}, intentName=${
       intentRequest.currentIntent.name
@@ -13,7 +14,7 @@ module.exports = function(intentRequest, callback) {
 
   if (intentName === "CoffeeOrder") {
     console.log(intentName + " was called");
-    return orderCoffee(intentRequest, callback);
+    return orderCoffee(intentRequest); //Now all our drink need to return a promise
   }
 
   throw new Error(`Intent with name ${intentName} not supported`);

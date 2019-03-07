@@ -39,3 +39,20 @@ module.exports.close = function(sessionAttributes, fulfillmentState, message) {
     }
   };
 };
+
+module.exports.confirmIntent = function(
+  sessionAttributes,
+  intentName,
+  slots,
+  message
+) {
+  return {
+    sessionAttributes,
+    dialogAction: {
+      type: "ConfirmIntent",
+      intentName,
+      slots,
+      message
+    }
+  };
+};
