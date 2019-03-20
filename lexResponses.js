@@ -15,7 +15,10 @@ module.exports.elicitSlot = function(
   intentName,
   slots,
   slotToElicit,
-  message
+  message,
+  title,
+  imageUrl,
+  buttons
 ) {
   return {
     sessionAttributes,
@@ -24,7 +27,8 @@ module.exports.elicitSlot = function(
       intentName,
       slots,
       slotToElicit,
-      message
+      message,
+      getResponseCard: getResponseCard(title, imageUrl, buttons)
     }
   };
 };
@@ -56,3 +60,16 @@ module.exports.confirmIntent = function(
     }
   };
 };
+
+function getResponseCard(title, imageUrl, buttons) {
+  return {
+    contentType: "application/vnd.amazonaws.card.generic",
+    genericAttachments: [
+      {
+        title,
+        imageUrl,
+        buttons
+      }
+    ]
+  };
+}

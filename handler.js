@@ -21,6 +21,7 @@ module.exports.saveUserFavorites = (event, context, callback) => {
   console.log("saveUserFavorites lambda called");
 
   //getting the item that will come in the event
+  console.log(event);
   let item = event.Records[0].dynamodb.NewImage;
   console.log(item);
 

@@ -2,7 +2,7 @@
 //taking care of the lambda
 
 const orderCoffee = require("./orderCoffeeBot/orderCoffee"); //module taking care of CoffeeOrder intent
-//const greetUser = require("./greetUser");
+const greetUser = require("./greetUser");
 
 module.exports = function(intentRequest) {
   //inputing an event and not a callback anymore
@@ -13,9 +13,13 @@ module.exports = function(intentRequest) {
   );
   const intentName = intentRequest.currentIntent.name;
 
+  console.log(intentName + " was called");
   if (intentName === "CoffeeOrder") {
-    console.log(intentName + " was called");
     return orderCoffee(intentRequest); //Now all our drink need to return a promise
+  }
+
+  if (intentName === "GreetingIntent") {
+    return greetUser(intentRequest);
   }
 
   throw new Error(`Intent with name ${intentName} not supported`);

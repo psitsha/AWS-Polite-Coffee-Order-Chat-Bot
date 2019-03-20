@@ -17,17 +17,19 @@ const sizes = ["single", "double", "normal", "regular", "large"];
 
 //whenever the validation fails then the validation result constructor returns size or type that hs failed
 
-function buildValidationResult(isValid, violatedSlot, messageContent) {
+function buildValidationResult(isValid, violatedSlot, messageContent, options) {
   if (messageContent == null) {
     return {
       isValid,
-      violatedSlot
+      violatedSlot,
+      options
     };
   }
   return {
     isValid,
     violatedSlot,
-    message: { contentType: "PlainText", content: messageContent }
+    message: { contentType: "PlainText", content: messageContent },
+    options
   };
 }
 
@@ -39,21 +41,44 @@ function buildUserFavoriteResult(coffee, size, messageContent) {
   };
 }
 
+function getButtons(options) {
+  let buttons = [];
+  _.forEach(options, option => {
+    buttons.push({
+      text: option,
+      value: option
+    });
+  });
+}
+
+function getOptions(title, types) {
+  return {
+    title,
+    imageUrl: "https://www.svtea.com/images/CinnamonCoffee.jpg",
+    buttons: getButtons(types)
+  };
+}
+
 function validateCoffeeOrder(coffeeType, coffeeSize) {
   //checking if coffeeType and coffeesize exist in a list
   if (coffeeType && types.indexOf(coffeeType.toLowerCase()) === -1) {
+    const options = getOptions("Select a Coffee", types);
+
     return buildValidationResult(
       false,
       "coffee",
-      `We do not have ${coffeeType}, would you like a different coffee? Our most popular coffee is americano.`
+      `We do not have ${coffeeType}, would you like a different coffee? Our most popular coffee is americano.`,
+      options
     );
   }
 
   if (coffeeSize && sizes.indexOf(coffeeSize.toLowerCase()) === -1) {
+    const options = getOptions("Select a Size", sizes);
     return buildValidationResult(
       false,
       "size",
-      `We do not have ${coffeeSize}, would you like a different size of coffee? Our most popular size is regular.`
+      `We do not have ${coffeeSize}, would you like a different size of coffee? Our most popular size is regular.`,
+      options
     );
   }
 
@@ -70,10 +95,16 @@ function validateCoffeeOrder(coffeeType, coffeeSize) {
         coffeeSize.toLowerCase() === "large"
       )
     ) {
+      const options = getOptions("Select a Size", [
+        "normal",
+        "regular",
+        "large"
+      ]);
       return buildValidationResult(
         false,
         "size",
-        `We do not have ${coffeeType} in that size. Normal/Regular or large are the available sizes for that drink.`
+        `We do not have ${coffeeType} in that size. Normal/Regular or large are the available sizes for that drink.`,
+        options
       );
     }
 
@@ -85,10 +116,12 @@ function validateCoffeeOrder(coffeeType, coffeeSize) {
         coffeeSize.toLowerCase() === "double"
       )
     ) {
+      const options = getOptions("Select a Size", ["single", "double"]);
       return buildValidationResult(
         false,
         "size",
-        `We do not have ${coffeeType} in that size. Single or double are the available sizes for that drink.`
+        `We do not have ${coffeeType} in that size. Single or double are the available sizes for that drink.`,
+        options
       );
     }
 
@@ -100,10 +133,12 @@ function validateCoffeeOrder(coffeeType, coffeeSize) {
         coffeeSize.toLowerCase() === "regular"
       )
     ) {
+      const options = getOptions("Select a Size", ["normal", "regular"]);
       return buildValidationResult(
         false,
         "size",
-        `We do not have ${coffeeType} in that size. ${coffeeType} is only available in Normal/Regular sizes.`
+        `We do not have ${coffeeType} in that size. ${coffeeType} is only available in Normal/Regular sizes.`,
+        options
       );
     }
 
@@ -114,10 +149,12 @@ function validateCoffeeOrder(coffeeType, coffeeSize) {
         coffeeSize.toLowerCase() === "regular"
       )
     ) {
+      const options = getOptions("Select a Size", ["normal", "regular"]);
       return buildValidationResult(
         false,
         "size",
-        `We do not have ${coffeeType} in that size. ${coffeeType} is only available in Normal/Regular sizes.`
+        `We do not have ${coffeeType} in that size. ${coffeeType} is only available in Normal/Regular sizes.`,
+        options
       );
     }
   }
@@ -174,7 +211,10 @@ module.exports = function(intentRequest) {
           intentRequest.currentIntent.name,
           slots,
           validationResult.violatedSlot,
-          validationResult.message
+          validationResult.message,
+          validationResult.options.title,
+          validationResult.options.imageUrl,
+          validationResult.options.buttons
         )
       );
     }
